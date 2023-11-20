@@ -14,8 +14,8 @@ def lambda_handler(event, context):
     bucket_path = datetime.now().strftime("year=%Y/month=%m/day=%d/time=%H%M%S")
 
     # Get the S3 bucket and key from the event
-    bucket = event['Records'][0]['s3']['bucket']['name']
-    key = event['Records'][0]['s3']['object']['key']
+    bucket = event['detail']['bucket']['name']
+    key = event['detail']['object']['key']
 
     # Read CSV from S3
     s3 = boto3.client('s3')

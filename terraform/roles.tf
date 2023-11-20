@@ -83,7 +83,9 @@ resource "aws_iam_policy" "policy_stepfunction" {
             "Effect": "Allow",
             "Action": [
                 "lambda:InvokeFunction",
-                "lambda:InvokeAsync"
+                "lambda:InvokeAsync",
+                "logs:*",
+                "glue:*"
             ],
             "Resource": "*"
         }
@@ -95,4 +97,48 @@ EOF
 resource "aws_iam_role_policy_attachment" "iam_for_sfn_attach" {
   role       = aws_iam_role.stepfunction_role.name
   policy_arn = aws_iam_policy.policy_stepfunction.arn
+}
+
+# Role Eventbridge
+resource "aws_iam_role" "eventbridge_role" {
+  name               = "eventbridge_Role"
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "events.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+EOF
+}
+# Policy Eventbridge
+resource "aws_iam_policy" "policy_eventbridge" {
+  name = "EventbridgePolicy"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Action": [
+                "states:StartExecution"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+# Attach role and policy Eventbridge
+resource "aws_iam_role_policy_attachment" "iam_for_entbridge_attach" {
+  role       = aws_iam_role.eventbridge_role.name
+  policy_arn = aws_iam_policy.policy_eventbridge.arn
 }
